@@ -1,6 +1,9 @@
 #!/bin/sh
 
 set -eu
+# MEMO:
+# -e: exit(0)以外でコマンドが終了した場合にスクリプトを停止
+# -u: 未定義の変数を使った時にスクリプトを停止
 
 
 function help() {
@@ -73,14 +76,18 @@ function check() {
         esac
         echo -e "\n- expected :"
         cat ${answerFiles[idx]}
-        if diff -sq result.txt ${answerFiles[idx]} >/dev/null; then
+        set +e
+        diff --strip-trailing-cr result.txt ${answerFiles[idx]} > /dev/null
+        # MEMO: --strip-trailing-cr オプションでLF/CRLFの改行コードによる差を無視する
+        if [ ${?} -eq 0 ]; then
             printf "\n[ status ] : \e[32m AC \e[m\n"
         else
             printf "\n[ status ] : \e[31m WA \e[m\n"
             status="WA"
         fi
+        set -e
     }
-    rm result.txt
+    # rm result.txt
     case ${status} in
     "AC" ) printf "\n[ final status ] : \e[32m AC \e[m\n";;
     "WA" ) printf "\n[ final status ] : \e[31m WA \e[m\n";;
@@ -138,4 +145,4 @@ case ${mode} in
 esac
 
 exit 0
-# end of script
+
