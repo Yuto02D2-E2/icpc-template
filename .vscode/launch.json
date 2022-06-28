@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debug",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": true,
+            // "program": "${file}",
+            "program": "${fileDirname}\\${fileBasenameNoExtension}.py",
+            "args": [
+                "<",
+                "${fileDirname}\\${fileBasenameNoExtension}1"
+            ],
+            "console": "integratedTerminal",
+        },
+    ]
+}
