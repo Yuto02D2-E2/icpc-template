@@ -8,10 +8,11 @@ set -eu
 
 function help() {
     echo -e "\nUsage:"
-    echo -e "\tsh test.sh <problem char(UpperCase)> <options>"
+    echo -e "\tsh test.sh <problem char> <options>"
     echo -e "\nOptions:"
+    printf "\t-e <ExecFile:\e[34mProblemChar.py\e[m,ProblemChar.exe>\n"
     printf "\t-l <Language:\e[34mpython\e[m,cpp>\n"
-    printf "\t-d <Data:\e[34sample\e[m,judge>\n"
+    printf "\t-d <Data:\e[34msample\e[m,judge>\n"
     printf "\t-m <Mode:\e[34mrun\e[m,check,submit>\n"
     printf "# \e[34mblue\e[m is default value\n\n"
     exit 0
@@ -43,9 +44,9 @@ function run() {
         fi
         case ${lang} in
         "python" )
-            python -O $problem.py < ${file};;
+            python -O $execFile < ${file};;
         "cpp" )
-            ./$problem.bin < ${file};;
+            ./$execFile < ${file};;
         esac
     done
 }
@@ -70,9 +71,9 @@ function check() {
         echo -e "\n\n- result :"
         case ${lang} in
         "python" )
-            python $problem.py < ${inputFiles[idx]} | tee result.txt;;
+            python $execFile < ${inputFiles[idx]} | tee result.txt;;
         "cpp" )
-            ./$problem.bin < ${inputFiles[idx]} | tee result.txt;;
+            ./$execFile < ${inputFiles[idx]} | tee result.txt;;
         esac
         echo -e "\n- expected :"
         cat ${answerFiles[idx]}
@@ -102,9 +103,9 @@ function submit() {
     echo -n "> make submit data..."
     case ${lang} in
     "python" )
-        python $problem.py < ./judge/${inputFile} > ./submit/${inputFile}.answer;;
+        python $execFile < ./judge/${inputFile} > ./submit/${inputFile}.answer;;
     "cpp" )
-        ./$problem.bin < ./judge/${inputFile} > ./submit/${inputFile}.answer;;
+        ./$execFile < ./judge/${inputFile} > ./submit/${inputFile}.answer;;
     esac
     printf "\e[34m done\e[m\n"
     echo -e "> let's submit the file : ${inputFile}.answer\n"
@@ -113,18 +114,19 @@ function submit() {
 
 #------------------- entry point. main process below ------------------------
 if [ "$#" -lt 1 ]; then
-    # TODO: 半角大文字一文字(A,B,...H)以外を弾く
-    printf ">\e[31m invalid args\e[m: problem char(UpperCase) is required\n"
+    printf ">\e[31m invalid args\e[m: problem char(e.g. A,B,...,H) is required\n"
     help
 fi
 
-problem=${1}
+problem=${1^^} # cast to upper case
 shift 1 # skip reading problem char
+execFile="${problem,,}.py" # cast to lower case
 lang="python"
 data="sample"
 mode="run"
-while getopts :l:d:m:h OPT; do
+while getopts :e:l:d:m:h OPT; do
     case ${OPT} in
+    "e" ) execFile="${OPTARG}";; # .py / .exe file name
     "l" ) lang="${OPTARG}";;  # programming language
     "d" ) data="${OPTARG}";;  # path to input data
     "m" ) mode="${OPTARG}";;  # run only / check / make submit data
@@ -145,4 +147,5 @@ case ${mode} in
 esac
 
 exit 0
+# end of script
 
