@@ -22,7 +22,7 @@ function help() {
 function compile() {
     if [ "$lang" == "cpp" ]; then
         echo -n "> compile..."
-        g++ -std=gnu++17 -O2 -Wall -Wextra -D_GLIBCXX_DEBUG -Wno-unknown-pragmas -g -o ${problem}.bin ${problem}.cc
+        g++ -std=gnu++17 -O2 -Wall -Wextra -D_GLIBCXX_DEBUG -Wno-unknown-pragmas -g -o ${execFile} ${problem}.cc
         case ${?} in
         "0" ) printf "\e[34m passed \e[m\n";;
         * ) exit 0;;
@@ -120,7 +120,6 @@ fi
 
 problem=${1^^} # cast to upper case
 shift 1 # skip reading problem char
-execFile="${problem,,}.py" # cast to lower case
 lang="python"
 data="sample"
 mode="run"
@@ -135,6 +134,11 @@ while getopts :e:l:d:m:h OPT; do
         help;;
     esac
 done
+
+case ${lang} in
+"python" ) execFile="${problem,,}.py" ;; # cast to lower case
+"cpp" ) execFile="${problem,,}.bin" ;;
+esac
 
 echo -e "\n> problem:${problem} / lang:${lang} / data:${data} / mode:${mode}\n"
 
